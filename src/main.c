@@ -1,10 +1,10 @@
 #include "application.h"
+#include "colorpicker.h"
 
 #ifdef DIMMIT_DEBUG
   #include <crtdbg.h>
 #endif
 #include <Windows.h>
-#include <Commdlg.h>
 #include <shellapi.h>
 
 const int EXIT_OK = 0;
@@ -78,21 +78,8 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
         if (cmd == kCmdEnabled) {
           application_set_enabled(app, !app->enabled);
         } else if (cmd == kCmdColor) {
-          // @TODO: need a color picker with alpha...
-          static DWORD custom_colors[16] = {0};
-
-          CHOOSECOLORW cc = {
-            .lStructSize = sizeof(cc),
-            .hwndOwner = window,
-            .Flags = CC_RGBINIT | CC_FULLOPEN,
-            .lpCustColors = custom_colors,
-            .rgbResult = color_to_colorref(app->color),
-          };
-          if (ChooseColorW(&cc) != FALSE) {
-            Color color = colorref_to_color(cc.rgbResult);
-            color.a = 0.5f;
-            application_set_color(app, color);
-          }
+          Color new_color = choose_color(app->color, window);
+          application_set_color(app, new_color);
         } else if (cmd == kCmdExit) {
           DestroyWindow(window);
         }
