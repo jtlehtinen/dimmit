@@ -1,38 +1,38 @@
 #include "dimwindow.h"
 #include "colors.h"
 #include <assert.h>
+#include <stdlib.h>
 
-// @TODO: Remove this when you figure out nice way to pass
-// the color to the window procedure. SetWindowLongPtr sucks
-// since you need to pass pointer... And I don't want to alloc
-// DimWindow from the heap or introduce dependency that would
-// provide a stable pointer.
-static COLORREF global_color = RGBA(0,0,0,128);
+static LRESULT CALLBACK dim_window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+  SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
-static LRESULT CALLBACK dim_window_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
-  SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+  DimWindow* window = (DimWindow*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+  if (!window) {
+    return DefWindowProcW(hwnd, message, wparam, lparam);
+  }
 
   switch (message) {
     case WM_PAINT: {
-      HBRUSH brush = CreateSolidBrush(global_color);
+      SetLayeredWindowAttributes(hwnd, RGB(0,0,0), GetAValue(window->color), LWA_ALPHA);
+
+      HBRUSH brush = CreateSolidBrush(window->color);
 
       PAINTSTRUCT ps;
-      HDC dc = BeginPaint(window, &ps);
+      HDC dc = BeginPaint(hwnd, &ps);
 
       RECT cr;
-      GetClientRect(window, &cr);
+      GetClientRect(hwnd, &cr);
       FillRect(dc, &cr, brush);
 
-      EndPaint(window, &ps);
+      EndPaint(hwnd, &ps);
 
       DeleteObject(brush);
 
-      SetLayeredWindowAttributes(window, RGB(0,0,0), GetAValue(global_color), LWA_ALPHA);
       return 0;
     }
 
     default:
-      return DefWindowProcW(window, message, wparam, lparam);
+      return DefWindowProcW(hwnd, message, wparam, lparam);
   }
 }
 
@@ -51,7 +51,7 @@ static register_window_class() {
   }
 }
 
-DimWindow dim_window_create(Int2 position, Int2 size) {
+DimWindow* dim_window_create(Int2 position, Int2 size, COLORREF color) {
   register_window_class();
 
   DWORD ws = WS_POPUP | WS_VISIBLE;
@@ -69,25 +69,36 @@ DimWindow dim_window_create(Int2 position, Int2 size) {
     GetModuleHandleW(NULL),
     NULL
   );
-  assert(handle);
 
-  SetLayeredWindowAttributes(handle, RGB(0, 0, 0), 128, LWA_ALPHA);
+  if (!handle) {
+    return NULL;
+  }
 
-  return (DimWindow){
-    .handle = handle,
-  };
+  DimWindow* result = (DimWindow*)malloc(sizeof(DimWindow));
+  if (!result) {
+    DestroyWindow(handle);
+    return NULL;
+  }
+
+  result->handle = handle;
+  result->color = color;
+
+  SetWindowLongPtrW(result->handle, GWLP_USERDATA, (LONG_PTR)result);
+  SetLayeredWindowAttributes(result->handle, RGB(0, 0, 0), GetAValue(color), LWA_ALPHA);
+
+  return result;
 }
 
 void dim_window_destroy(DimWindow* window) {
-  if (window->handle) {
-    DestroyWindow(window->handle);
+  if (window) {
+    if (window->handle) {
+      DestroyWindow(window->handle);
+    }
+    free(window);
   }
 }
 
-void dim_window_request_repaint(DimWindow* window) {
+void dim_window_set_color(DimWindow* window, COLORREF color) {
+  window->color = color;
   InvalidateRect(window->handle, NULL, FALSE);
-}
-
-void dim_window_set_global_color(COLORREF color) {
-  global_color = color;
 }

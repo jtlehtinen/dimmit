@@ -62,7 +62,11 @@ void application_create_dim_windows(Application* app) {
   int64_t count = arrlen(monitors);
   for (int64_t i = 0; i < count; ++i) {
     Monitor* monitor = monitors + i;
-    arrput(app->dim_windows, dim_window_create(monitor->position, monitor->size));
+
+    DimWindow* window = dim_window_create(monitor->position, monitor->size, app->color);
+    if (window) {
+      arrput(app->dim_windows, window);
+    }
   }
 
   arrfree(monitors);
@@ -71,7 +75,7 @@ void application_create_dim_windows(Application* app) {
 void application_destroy_dim_windows(Application* app) {
   int64_t count = arrlen(app->dim_windows);
   for (int64_t i = 0; i < count; ++i) {
-    dim_window_destroy(&app->dim_windows[i]);
+    dim_window_destroy(app->dim_windows[i]);
   }
   arrfree(app->dim_windows);
   app->dim_windows = NULL;
@@ -93,10 +97,8 @@ void application_set_enabled(Application* app, BOOL enabled) {
 void application_set_color(Application* app, COLORREF color) {
   app->color = color;
 
-  dim_window_set_global_color(color);
-
   int64_t count = arrlen(app->dim_windows);
   for (int64_t i = 0; i < count; ++i) {
-    dim_window_request_repaint(&app->dim_windows[i]);
+    dim_window_set_color(app->dim_windows[i], color);
   }
 }

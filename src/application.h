@@ -3,7 +3,7 @@
 #include "dimwindow.h"
 
 typedef struct {
-  DimWindow* dim_windows; // stretchy buffer
+  DimWindow** dim_windows; // stretchy buffer
   COLORREF color;
   BOOL enabled;
 } Application;
