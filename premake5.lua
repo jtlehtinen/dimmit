@@ -24,6 +24,8 @@ project "dimmit"
   kind "WindowedApp"
   targetdir "bin/%{cfg.platform}/%{cfg.buildcfg}"
   files {"src/**.h", "src/**.c"}
+  files { "src/icon.ico", "src/resources.rc" }
   includedirs { "src" }
   editandcontinue "Off"
-  flags { "NoIncrementalLink", "NoPCH", "StaticRuntime" }
+  staticruntime "On"
+  flags { "NoIncrementalLink", "NoPCH" }
