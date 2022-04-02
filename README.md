@@ -1,0 +1,3 @@
+# dimmit
+
+Dim your display.
