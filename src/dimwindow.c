@@ -24,7 +24,7 @@ static LRESULT CALLBACK dim_window_proc(HWND window, UINT message, WPARAM wparam
 
   switch (message) {
     case WM_PAINT: {
-      HBRUSH brush = CreateSolidBrush(RGB(tobyte(global_color.r), tobyte(global_color.g), tobyte(global_color.b)));
+      HBRUSH brush = CreateSolidBrush(color_to_colorref(global_color));
 
       PAINTSTRUCT ps;
       HDC dc = BeginPaint(window, &ps);
@@ -57,6 +57,19 @@ static register_window_class() {
 
     registered = TRUE;
   }
+}
+
+COLORREF color_to_colorref(Color color) {
+  return RGB(tobyte(color.r), tobyte(color.g), tobyte(color.b));
+}
+
+Color colorref_to_color(COLORREF colorref) {
+  return (Color){
+    .r = (float)GetRValue(colorref) / 255.0f,
+    .g = (float)GetGValue(colorref) / 255.0f,
+    .b = (float)GetBValue(colorref) / 255.0f,
+    .a = 1.0f,
+  };
 }
 
 DimWindow dim_window_create(Int2 position, Int2 size) {

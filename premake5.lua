@@ -29,4 +29,4 @@ project "dimmit"
   editandcontinue "Off"
   staticruntime "On"
   flags { "NoIncrementalLink", "NoPCH" }
-  links { "Winmm.lib" }
+  links { "Winmm.lib", "Comdlg32.lib" }

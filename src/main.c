@@ -4,6 +4,7 @@
   #include <crtdbg.h>
 #endif
 #include <Windows.h>
+#include <Commdlg.h>
 #include <shellapi.h>
 
 const int EXIT_OK = 0;
@@ -50,20 +51,17 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
       return 0;
     }
 
-    case WM_TIMER: {
-      application_test_color(app);
-      return 0;
-    }
-
     case WM_DIMMIT_NOTIFY_COMMAND: {
       if (lparam == WM_RBUTTONUP) {
         const UINT kCmdEnabled = 1;
+        const UINT kCmdColor = 2;
         const UINT kCmdExit = 255;
 
         HMENU menu = CreatePopupMenu();
 
         #define CHECKED(condition) ((condition) ? (UINT)MF_CHECKED : (UINT)MF_UNCHECKED)
         AppendMenuW(menu, CHECKED(app->enabled), kCmdEnabled, L"Enabled");
+        AppendMenuW(menu, MF_STRING, kCmdColor, L"Change Color...");
         AppendMenuW(menu, MF_SEPARATOR, 0, NULL);
         AppendMenuW(menu, MF_STRING, kCmdExit, L"Exit");
         #undef CHECKED
@@ -76,10 +74,27 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
 
         DestroyMenu(menu);
 
-        if (cmd == kCmdExit) {
-          DestroyWindow(window);
-        } else if (cmd == kCmdEnabled) {
+
+        if (cmd == kCmdEnabled) {
           application_set_enabled(app, !app->enabled);
+        } else if (cmd == kCmdColor) {
+          // @TODO: need a color picker with alpha...
+          static DWORD custom_colors[16] = {0};
+
+          CHOOSECOLORW cc = {
+            .lStructSize = sizeof(cc),
+            .hwndOwner = window,
+            .Flags = CC_RGBINIT | CC_FULLOPEN,
+            .lpCustColors = custom_colors,
+            .rgbResult = color_to_colorref(app->color),
+          };
+          if (ChooseColorW(&cc) != FALSE) {
+            Color color = colorref_to_color(cc.rgbResult);
+            color.a = 0.5f;
+            application_set_color(app, color);
+          }
+        } else if (cmd == kCmdExit) {
+          DestroyWindow(window);
         }
       }
     }
@@ -129,15 +144,12 @@ int CALLBACK wWinMain(HINSTANCE instance, HINSTANCE previous_instance, LPWSTR co
 
     SetWindowLongPtrW(notification_area_window, GWLP_USERDATA, (LONG_PTR)(&app));
 
-    const UINT_PTR timer = SetTimer(notification_area_window, 0, 100, NULL);
-
     MSG msg = {0};
     while (GetMessageW(&msg, NULL, 0, 0) > 0) {
       TranslateMessage(&msg);
       DispatchMessageW(&msg);
     }
 
-    KillTimer(notification_area_window, timer);
     application_deinitialize(&app);
   }
 

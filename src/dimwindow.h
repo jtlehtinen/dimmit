@@ -10,6 +10,9 @@ typedef struct {
   float r, g, b, a;
 } Color;
 
+COLORREF color_to_colorref(Color color);
+Color colorref_to_color(COLORREF colorref);
+
 typedef struct {
   HWND handle;
 } DimWindow;
