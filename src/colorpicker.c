@@ -1,5 +1,7 @@
 #include "colorpicker.h"
+#include "colors.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <Commdlg.h>
 
 #define COLOR_ALPHAACCEL  800
@@ -7,21 +9,35 @@
 
 static UINT kColorSubmitMessage = 0;
 
+static int clamp(int value, int min, int max) {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
+}
+
 static UINT_PTR CALLBACK color_picker_hook(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
   CHOOSECOLOR* cc = (CHOOSECOLOR*)lparam;
 
-  if (message == kColorSubmitMessage) {
+  if (message == WM_INITDIALOG) {
+
     char buf[512] = {0};
-    UINT count = GetDlgItemTextA(window, COLOR_ALPHA, buf, ARRAYSIZE(buf));
+    sprintf_s(buf, sizeof(buf), "%d", GetAValue(cc->rgbResult));
+    SetDlgItemTextA(window, COLOR_ALPHA, buf);
 
-    if (count < ARRAYSIZE(buf)) {
+  } else if (message == kColorSubmitMessage) {
+
+    char buf[512] = {0};
+    UINT count = GetDlgItemTextA(window, COLOR_ALPHA, buf, sizeof(buf));
+
+    if (count < sizeof(buf)) {
       COLORREF color = cc->rgbResult;
-      DWORD red = GetRValue(color);
-      DWORD green = GetGValue(color);
-      DWORD blue = GetBValue(color);
-      DWORD alpha = ((DWORD)atoi(buf)) & 0xff;
 
-      cc->rgbResult = RGBA(red, green, blue, alpha);
+      DWORD r = GetRValue(color);
+      DWORD g = GetGValue(color);
+      DWORD b = GetBValue(color);
+      DWORD a = (DWORD)clamp(atoi(buf), 0, 255);
+
+      cc->rgbResult = RGBA(r, g, b, a);
     }
   }
 

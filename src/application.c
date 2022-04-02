@@ -1,4 +1,5 @@
 #include "application.h"
+#include "colors.h"
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 #include <assert.h>

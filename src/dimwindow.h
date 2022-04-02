@@ -6,9 +6,6 @@ typedef struct {
   int x, y;
 } Int2;
 
-#define RGBA(r, g, b, a)  ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16))|(((DWORD)(BYTE)(a))<<24))
-#define GetAValue(rgba)   (LOBYTE((rgba)>>24))
-
 typedef struct {
   HWND handle;
 } DimWindow;

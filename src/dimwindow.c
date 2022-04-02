@@ -1,4 +1,5 @@
 #include "dimwindow.h"
+#include "colors.h"
 #include <assert.h>
 
 // @TODO: Remove this when you figure out nice way to pass
