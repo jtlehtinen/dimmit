@@ -1,3 +1,7 @@
+// @TODO:
+// - store/load settings to/from a file
+// - change initial position of color picker window
+
 #include "application.h"
 #include "colorpicker.h"
 
