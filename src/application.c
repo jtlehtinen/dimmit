@@ -51,6 +51,10 @@ void application_create_dim_windows(Application* app) {
     application_destroy_dim_windows(app);
   }
 
+  if (!app->enabled) {
+    return;
+  }
+
   Monitor* monitors = all_monitors();
 
   int64_t count = arrlen(monitors);
@@ -69,6 +73,19 @@ void application_destroy_dim_windows(Application* app) {
   }
   arrfree(app->dim_windows);
   app->dim_windows = NULL;
+}
+
+void application_set_enabled(Application* app, BOOL enabled) {
+  if (app->enabled == enabled) {
+    return;
+  }
+
+  application_destroy_dim_windows(app);
+
+  app->enabled = enabled;
+  if (app->enabled) {
+    application_create_dim_windows(app);
+  }
 }
 
 void application_test_color(Application* app) {

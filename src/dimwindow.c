@@ -79,7 +79,6 @@ DimWindow dim_window_create(Int2 position, Int2 size) {
   );
   assert(handle);
 
-  //SetWindowLongPtrW(handle, GWLP_USERDATA, (LONG_PTR)(&app));
   SetLayeredWindowAttributes(handle, RGB(0, 0, 0), 128, LWA_ALPHA);
 
   return (DimWindow){

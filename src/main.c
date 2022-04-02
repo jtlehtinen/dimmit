@@ -39,6 +39,9 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
   }
 
   Application* app = (Application*)GetWindowLongPtrW(window, GWLP_USERDATA);
+  if (!app) {
+    return DefWindowProcW(window, message, wparam, lparam);
+  }
 
   switch (message) {
     case WM_DESTROY: {
@@ -48,23 +51,19 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
     }
 
     case WM_TIMER: {
-      if (app) {
-        application_test_color(app);
-      }
+      application_test_color(app);
       return 0;
     }
 
     case WM_DIMMIT_NOTIFY_COMMAND: {
       if (lparam == WM_RBUTTONUP) {
-        static BOOL enabled = FALSE;
-
         const UINT kCmdEnabled = 1;
         const UINT kCmdExit = 255;
 
         HMENU menu = CreatePopupMenu();
 
         #define CHECKED(condition) ((condition) ? (UINT)MF_CHECKED : (UINT)MF_UNCHECKED)
-        AppendMenuW(menu, CHECKED(enabled), kCmdEnabled, L"Enabled");
+        AppendMenuW(menu, CHECKED(app->enabled), kCmdEnabled, L"Enabled");
         AppendMenuW(menu, MF_SEPARATOR, 0, NULL);
         AppendMenuW(menu, MF_STRING, kCmdExit, L"Exit");
         #undef CHECKED
@@ -80,7 +79,7 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
         if (cmd == kCmdExit) {
           DestroyWindow(window);
         } else if (cmd == kCmdEnabled) {
-          enabled = !enabled;
+          application_set_enabled(app, !app->enabled);
         }
       }
     }
