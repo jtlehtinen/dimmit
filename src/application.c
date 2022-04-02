@@ -39,7 +39,7 @@ static Monitor* all_monitors() {
 
 void application_initialize(Application* app) {
   assert(app->dim_windows == NULL);
-  app->color = (Color){.r = 0.0f, .g = 0.0f, .b = 0.0f, .a = 0.5f};
+  app->color = RGBA(0, 0, 0, 128);
   application_create_dim_windows(app);
 }
 
@@ -89,7 +89,7 @@ void application_set_enabled(Application* app, BOOL enabled) {
   }
 }
 
-void application_set_color(Application* app, Color color) {
+void application_set_color(Application* app, COLORREF color) {
   app->color = color;
   int64_t count = arrlen(app->dim_windows);
   for (int64_t i = 0; i < count; ++i) {

@@ -78,7 +78,7 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
         if (cmd == kCmdEnabled) {
           application_set_enabled(app, !app->enabled);
         } else if (cmd == kCmdColor) {
-          Color new_color = choose_color(app->color, window);
+          COLORREF new_color = choose_color(app->color, window);
           application_set_color(app, new_color);
         } else if (cmd == kCmdExit) {
           DestroyWindow(window);

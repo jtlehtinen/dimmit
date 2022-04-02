@@ -1,9 +1,12 @@
 1 ICON "icon.ico"
 
+#define COLOR_ALPHAACCEL  800
+#define COLOR_ALPHA       801
+
 #include <windows.h>
 #include <colordlg.h>
 
-DimmitChooseColor DIALOG LOADONCALL MOVEABLE DISCARDABLE 2, 0, 298, 184
+DimmitChooseColor DIALOG LOADONCALL MOVEABLE DISCARDABLE 2, 0, 298, 198
 STYLE WS_BORDER | DS_MODALFRAME | WS_CAPTION | WS_POPUP | WS_SYSMENU |
       DS_3DLOOK
 CAPTION "Dimmit Color"
@@ -57,6 +60,9 @@ BEGIN
     RTEXT           "Bl&ue:", COLOR_BLUEACCEL, 243, 154, 24, 9
     EDITTEXT,       COLOR_BLUE, 269, 152, 18, 12, WS_GROUP | WS_TABSTOP
 
-    PUSHBUTTON      "&Add to Custom Colors", COLOR_ADD, 152, 166, 142, 14,
+    RTEXT           "&Alpha:", COLOR_ALPHAACCEL, 243, 168, 24, 9
+    EDITTEXT,       COLOR_ALPHA, 269, 166, 18, 12, WS_GROUP | WS_TABSTOP
+
+    PUSHBUTTON      "&Add to Custom Colors", COLOR_ADD, 152, 180, 142, 14,
                     WS_GROUP | WS_TABSTOP
 END

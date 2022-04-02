@@ -2,4 +2,4 @@
 
 #include "dimwindow.h"
 
-Color choose_color(Color initial_color, HWND parent_window);
+COLORREF choose_color(COLORREF initial_color, HWND parent_window);
