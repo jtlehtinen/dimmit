@@ -43,10 +43,19 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
 
     case WM_DIMMIT_NOTIFY_COMMAND: {
       if (lparam == WM_RBUTTONUP) {
+        static BOOL enabled = FALSE;
+
+        const UINT kCmdEnabled = 1;
         const UINT kCmdExit = 255;
 
         HMENU menu = CreatePopupMenu();
+
+        #define CHECKED(condition) ((condition) ? (UINT)MF_CHECKED : (UINT)MF_UNCHECKED)
+        AppendMenuW(menu, CHECKED(enabled), kCmdEnabled, L"Enabled");
+        AppendMenuW(menu, MF_SEPARATOR, 0, NULL);
         AppendMenuW(menu, MF_STRING, kCmdExit, L"Exit");
+        #undef CHECKED
+
         SetForegroundWindow(window);
 
         POINT mouse;
@@ -57,6 +66,8 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
 
         if (cmd == kCmdExit) {
           DestroyWindow(window);
+        } else if (cmd == kCmdEnabled) {
+          enabled = !enabled;
         }
       }
     }
