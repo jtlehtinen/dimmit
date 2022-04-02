@@ -49,7 +49,7 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
 
     case WM_TIMER: {
       if (app) {
-        application_test_alpha(app);
+        application_test_color(app);
       }
       return 0;
     }

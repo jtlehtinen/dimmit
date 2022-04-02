@@ -7,10 +7,14 @@ typedef struct {
 } Int2;
 
 typedef struct {
+  float r, g, b, a;
+} Color;
+
+typedef struct {
   HWND handle;
 } DimWindow;
 
 DimWindow dim_window_create(Int2 position, Int2 size);
-void dim_window_destroy(DimWindow window);
+void dim_window_destroy(DimWindow* window);
 
-void dim_window_set_alpha(DimWindow window, float alpha);
+void dim_window_set_color(DimWindow* window, Color color);
