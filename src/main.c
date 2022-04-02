@@ -52,6 +52,12 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
       return 0;
     }
 
+    case WM_DEVICECHANGE:
+    case WM_DISPLAYCHANGE:
+    case WM_DPICHANGED:
+      application_create_dim_windows(app);
+      return DefWindowProcW(window, message, wparam, lparam);
+
     case WM_DIMMIT_NOTIFY_COMMAND: {
       if (lparam == WM_RBUTTONUP) {
         const UINT kCmdEnabled = 1;
