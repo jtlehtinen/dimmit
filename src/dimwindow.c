@@ -26,6 +26,8 @@ static LRESULT CALLBACK dim_window_proc(HWND window, UINT message, WPARAM wparam
       EndPaint(window, &ps);
 
       DeleteObject(brush);
+
+      SetLayeredWindowAttributes(window, RGB(0,0,0), GetAValue(global_color), LWA_ALPHA);
       return 0;
     }
 
@@ -82,8 +84,10 @@ void dim_window_destroy(DimWindow* window) {
   }
 }
 
-void dim_window_set_color(DimWindow* window, COLORREF color) {
-  global_color = color;
-  SetLayeredWindowAttributes(window->handle, RGB(0,0,0), GetAValue(color), LWA_ALPHA);
+void dim_window_request_repaint(DimWindow* window) {
   InvalidateRect(window->handle, NULL, FALSE);
+}
+
+void dim_window_set_global_color(COLORREF color) {
+  global_color = color;
 }

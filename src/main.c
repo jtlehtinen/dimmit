@@ -7,9 +7,6 @@
 #include <Windows.h>
 #include <shellapi.h>
 
-const int EXIT_OK = 0;
-const int EXIT_FAIL = 1;
-
 #define WM_DIMMIT_NOTIFY_COMMAND (WM_USER + 1)
 
 BOOL add_notification_area_icon(HWND window) {
@@ -100,7 +97,7 @@ int CALLBACK wWinMain(HINSTANCE instance, HINSTANCE previous_instance, LPWSTR co
   const wchar_t* guid = L"3eddb977-f739-48b3-a4b0-3cae2d885251";
   HANDLE mutex = CreateMutexW(NULL, TRUE, guid);
   if (GetLastError() != ERROR_SUCCESS) {
-    return EXIT_FAIL;
+    return 1;
   }
 
   SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
@@ -142,5 +139,5 @@ int CALLBACK wWinMain(HINSTANCE instance, HINSTANCE previous_instance, LPWSTR co
 
   ReleaseMutex(mutex);
 
-  return EXIT_OK;
+  return 0;
 }

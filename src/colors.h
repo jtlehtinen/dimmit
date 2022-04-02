@@ -16,7 +16,7 @@
 #define COLOR_RGB_BLACK                   0x000000
 #define COLOR_RGB_BLANCHED_ALMOND         0xCDEBFF
 #define COLOR_RGB_BLUE                    0xFF0000
-#define COLOR_RGB_BLUE_VIOLETt            0xE22B8A
+#define COLOR_RGB_BLUE_VIOLET             0xE22B8A
 #define COLOR_RGB_BROWN                   0x2A2AA5
 #define COLOR_RGB_BURLY_WOOD              0x87B8DE
 #define COLOR_RGB_CADET_BLUE              0xA09E5F

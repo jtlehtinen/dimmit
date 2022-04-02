@@ -92,8 +92,11 @@ void application_set_enabled(Application* app, BOOL enabled) {
 
 void application_set_color(Application* app, COLORREF color) {
   app->color = color;
+
+  dim_window_set_global_color(color);
+
   int64_t count = arrlen(app->dim_windows);
   for (int64_t i = 0; i < count; ++i) {
-    dim_window_set_color(&app->dim_windows[i], color);
+    dim_window_request_repaint(&app->dim_windows[i]);
   }
 }

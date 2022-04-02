@@ -12,5 +12,6 @@ typedef struct {
 
 DimWindow dim_window_create(Int2 position, Int2 size);
 void dim_window_destroy(DimWindow* window);
+void dim_window_request_repaint(DimWindow* window);
 
-void dim_window_set_color(DimWindow* window, COLORREF color);
+void dim_window_set_global_color(COLORREF color);
