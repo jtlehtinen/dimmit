@@ -1,11 +1,47 @@
+#include <stdint.h>
+#define STB_DS_IMPLEMENTATION
+#include "stb_ds.h"
+#include "dimwindow.h"
+
 #include <Windows.h>
 #include <shellapi.h>
-#include <stdint.h>
 
 const int EXIT_OK = 0;
 const int EXIT_FAIL = 1;
 
 #define WM_DIMMIT_NOTIFY_COMMAND (WM_USER + 1)
+
+typedef struct {
+  HMONITOR handle;
+  Int2 position;
+  Int2 size;
+} Monitor;
+
+typedef struct {
+  Monitor* monitors; // stretchy buffer
+  DimWindow* dim_windows; // stretchy buffer
+} Application;
+
+BOOL enumerate_monitors_callback(HMONITOR hmonitor, HDC dc, LPRECT rect, LPARAM lparam) {
+  Monitor** monitors = (Monitor**)(lparam);
+
+  Monitor monitor = {0};
+  monitor.handle = hmonitor;
+  monitor.position.x = rect->left;
+  monitor.position.y = rect->top;
+  monitor.size.x = rect->right - rect->left;
+  monitor.size.y = rect->bottom - rect->top;
+  arrput(*monitors, monitor);
+
+  return TRUE;
+}
+
+// Result alloced, you need to arrfree().
+Monitor* all_monitors() {
+  Monitor* monitors = NULL;
+  EnumDisplayMonitors(NULL, NULL, enumerate_monitors_callback, (LPARAM)(&monitors));
+  return monitors;
+}
 
 BOOL add_notification_area_icon(HWND window) {
   NOTIFYICONDATAW data = {
@@ -107,11 +143,26 @@ int CALLBACK wWinMain(HINSTANCE instance, HINSTANCE previous_instance, LPWSTR co
   );
 
   if (notification_area_window) {
+    Application app = {0};
+    app.monitors = all_monitors();
+
+    for (int64_t i = arrlen(app.monitors) - 1; i >= 0; --i) {
+      Monitor* monitor = app.monitors + i;
+      arrput(app.dim_windows, dim_window_create(monitor->position, monitor->size));
+    }
+
     MSG msg = {0};
     while (GetMessageW(&msg, NULL, 0, 0) > 0) {
       TranslateMessage(&msg);
       DispatchMessageW(&msg);
     }
+
+    for (int64_t i = arrlen(app.dim_windows) - 1; i >= 0; --i) {
+      dim_window_destroy(app.dim_windows[i]);
+    }
+    arrfree(app.dim_windows);
+
+    arrfree(app.monitors);
   }
 
   ReleaseMutex(mutex);
