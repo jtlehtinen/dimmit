@@ -1,4 +1,7 @@
 #include <stdint.h>
+#ifdef DIMMIT_DEBUG
+  #include <crtdbg.h>
+#endif
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 #include "dimwindow.h"
@@ -25,12 +28,17 @@ typedef struct {
 BOOL enumerate_monitors_callback(HMONITOR hmonitor, HDC dc, LPRECT rect, LPARAM lparam) {
   Monitor** monitors = (Monitor**)(lparam);
 
-  Monitor monitor = {0};
-  monitor.handle = hmonitor;
-  monitor.position.x = rect->left;
-  monitor.position.y = rect->top;
-  monitor.size.x = rect->right - rect->left;
-  monitor.size.y = rect->bottom - rect->top;
+  Monitor monitor = {
+    .handle = hmonitor,
+    .position = {
+      .x = rect->left,
+      .y = rect->top
+    },
+    .size = {
+      .x = rect->right - rect->left,
+      .y = rect->bottom - rect->top
+    }
+  };
   arrput(*monitors, monitor);
 
   return TRUE;
@@ -114,6 +122,11 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
 }
 
 int CALLBACK wWinMain(HINSTANCE instance, HINSTANCE previous_instance, LPWSTR command_line, int show_code) {
+#ifdef DIMMIT_DEBUG
+  int current_flags = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+  _CrtSetDbgFlag(current_flags | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
   const wchar_t* guid = L"3eddb977-f739-48b3-a4b0-3cae2d885251";
   HANDLE mutex = CreateMutexW(NULL, TRUE, guid);
   if (GetLastError() != ERROR_SUCCESS) {
@@ -161,7 +174,6 @@ int CALLBACK wWinMain(HINSTANCE instance, HINSTANCE previous_instance, LPWSTR co
       dim_window_destroy(app.dim_windows[i]);
     }
     arrfree(app.dim_windows);
-
     arrfree(app.monitors);
   }
 
