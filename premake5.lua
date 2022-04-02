@@ -29,3 +29,4 @@ project "dimmit"
   editandcontinue "Off"
   staticruntime "On"
   flags { "NoIncrementalLink", "NoPCH" }
+  links { "Winmm.lib" }

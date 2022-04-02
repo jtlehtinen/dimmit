@@ -1,7 +1,9 @@
 #include "application.h"
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
+#include <assert.h>
 #include <stdint.h>
+#include <timeapi.h>
 
 typedef struct {
   HMONITOR handle;
@@ -36,6 +38,7 @@ static Monitor* all_monitors() {
 }
 
 void application_initialize(Application* app) {
+  assert(app->dim_windows == NULL);
   application_create_dim_windows(app);
 }
 
@@ -66,4 +69,13 @@ void application_destroy_dim_windows(Application* app) {
   }
   arrfree(app->dim_windows);
   app->dim_windows = NULL;
+}
+
+void application_test_alpha(Application* app) {
+  float alpha = (float)(timeGetTime() % 2000) / 2000.0f;
+
+  int64_t count = arrlen(app->dim_windows);
+  for (int64_t i = 0; i < count; ++i) {
+    dim_window_set_alpha(app->dim_windows[i], alpha);
+  }
 }

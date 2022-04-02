@@ -38,10 +38,19 @@ LRESULT CALLBACK notification_area_window_proc(HWND window, UINT message, WPARAM
     return 0;
   }
 
+  Application* app = (Application*)GetWindowLongPtrW(window, GWLP_USERDATA);
+
   switch (message) {
     case WM_DESTROY: {
       remove_notification_area_icon(window);
       PostQuitMessage(0);
+      return 0;
+    }
+
+    case WM_TIMER: {
+      if (app) {
+        application_test_alpha(app);
+      }
       return 0;
     }
 
@@ -119,11 +128,17 @@ int CALLBACK wWinMain(HINSTANCE instance, HINSTANCE previous_instance, LPWSTR co
     Application app = {0};
     application_initialize(&app);
 
+    SetWindowLongPtrW(notification_area_window, GWLP_USERDATA, (LONG_PTR)(&app));
+
+    const UINT_PTR timer = SetTimer(notification_area_window, 0, 100, NULL);
+
     MSG msg = {0};
     while (GetMessageW(&msg, NULL, 0, 0) > 0) {
       TranslateMessage(&msg);
       DispatchMessageW(&msg);
     }
+
+    KillTimer(notification_area_window, timer);
     application_deinitialize(&app);
   }
 

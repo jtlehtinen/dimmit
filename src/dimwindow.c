@@ -1,5 +1,11 @@
 #include "dimwindow.h"
 
+static float clamp(float value, float min, float max) {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
+}
+
 static Int2 window_size(HWND window) {
   RECT r;
   GetClientRect(window, &r);
@@ -72,4 +78,10 @@ void dim_window_destroy(DimWindow window) {
   if (window.handle) {
     DestroyWindow(window.handle);
   }
+}
+
+void dim_window_set_alpha(DimWindow window, float alpha) {
+  alpha = clamp(alpha, 0.0f, 1.0f);
+  BYTE alphab = (BYTE)(alpha * 255.0f + 0.5f);
+  SetLayeredWindowAttributes(window.handle, RGB(0, 0, 0), alphab, LWA_ALPHA);
 }
